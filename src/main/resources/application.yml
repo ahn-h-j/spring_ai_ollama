@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: demo
+  ai:
+    model:
+      chat: ollama
+    ollama:
+      chat:
+        options:
+          model: llama3.2-korean
+          temperature: 0.1
+      base-url: http://localhost:11434
+
+
+
+
+
+#  ai:
+#    openai:
+#      base-url: https://api.groq.com/openai
+#      api-key: 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
+#      chat:
+#        options:
+#          model: llama3-70b-8192
+#          systemMessage: >
+#            ??? ?? ???? ???? ???. ??? ??? ?????? ??? ???? ?????.
+#          temperature: 0
