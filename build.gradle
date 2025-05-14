@@ -31,6 +31,10 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	//ollama
 	implementation 'org.springframework.ai:spring-ai-starter-model-ollama'
+	// Vector store + pgvector
+	implementation 'org.springframework.ai:spring-ai-starter-vector-store-pgvector'
+	// PostgreSQL JDBC driver
+	implementation 'org.postgresql:postgresql:42.7.1'
 }
 
 tasks.named('test') {
