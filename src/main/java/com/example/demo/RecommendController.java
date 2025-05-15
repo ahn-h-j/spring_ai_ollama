@@ -3,6 +3,8 @@ package com.example.demo;
 import jakarta.annotation.PostConstruct;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.embedding.EmbeddingModel;
+import org.springframework.ai.ollama.OllamaEmbeddingModel;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -27,6 +27,9 @@ public class RecommendController {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private EmbeddingModel embeddingModel;
 
     @PostConstruct
     public void init() {
@@ -55,10 +58,25 @@ public class RecommendController {
                 new Document("수성못 인근에 위치한 조용한 분위기의 베이커리 카페입니다. 고요한 오후 시간을 보내기에 적절한 힐링 공간입니다.", Map.of("name", "카페 휴심"))
         );
         vectorStore.add(docs);
+
+        System.out.println("=== 사용 중인 임베딩 모델 구현체 ===");
+        System.out.println("embeddingModel 구현체: " + embeddingModel.getClass().getName());
+
+        System.out.println("=== 문서 임베딩 벡터 출력 ===");
+        docs.forEach(doc -> {
+            float[] vector = embeddingModel.embed(Objects.requireNonNull(doc.getText()));
+            System.out.println("벡터 크기: " + vector.length);
+            System.out.println("벡터 일부: " + Arrays.toString(Arrays.copyOfRange(vector, 0, Math.min(5, vector.length))) + " ...");
+        });
     }
 
     @GetMapping("/recommend")
     public String recommend(@RequestParam String question) {
+        float[] questionVector = embeddingModel.embed(question);
+        System.out.println("=== 질문 임베딩 벡터 ===");
+        System.out.println("벡터 크기: " + questionVector.length);
+        System.out.println("벡터 일부: " + Arrays.toString(Arrays.copyOfRange(questionVector, 0, 5)) + " ...");
+
         List<Document> docs = Objects.requireNonNull(vectorStore.similaritySearch(
                 SearchRequest.builder().query(question).topK(3).similarityThreshold(0.5).build()
         )).stream().distinct().toList();
