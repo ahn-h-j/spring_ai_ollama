@@ -4,11 +4,9 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.embedding.EmbeddingModel;
-import org.springframework.ai.ollama.OllamaEmbeddingModel;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-public class RecommendController {
+public class EmbeddingController {
 
     @Autowired
     private VectorStore vectorStore;
@@ -26,15 +24,10 @@ public class RecommendController {
     private ChatClient chatClient;
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @Autowired
     private EmbeddingModel embeddingModel;
 
     @PostConstruct
     public void init() {
-        jdbcTemplate.execute("TRUNCATE TABLE document_embeddings");
-
         List<Document> docs = List.of(
                 new Document("강아지와 함께 여유로운 시간을 보낼 수 있는 감성적인 분위기의 카페입니다. 야외 테라스와 펫 전용 식기가 준비되어 있어 반려동물과 방문하기 좋습니다.", Map.of("name", "멍멍카페")),
                 new Document("자연광이 가득 들어오는 대형 창과 푸르른 식물들로 꾸며져 있어 힐링하기 좋은 포레스트 테마의 카페입니다. 조용한 분위기에서 대화를 나누기 좋습니다.", Map.of("name", "포레스트 커피")),
@@ -70,7 +63,7 @@ public class RecommendController {
         });
     }
 
-    @GetMapping("/recommend")
+    @GetMapping("/embedding")
     public String recommend(@RequestParam String question) {
         float[] questionVector = embeddingModel.embed(question);
         System.out.println("=== 질문 임베딩 벡터 ===");

@@ -14,15 +14,14 @@ spring:
         options:
           model: mxbai-embed-large
     vectorstore:
-      type: pgvector
       pgvector:
-        url: jdbc:postgresql://localhost:5432/postgres
-        username: postgres
-        password: 1234
         table-name: document_embeddings
         dimensions: 1024
         similarity: cosine
         initialize-schema: true
+        index-type: hnsw
+        distance-type: cosine_distance
+        remove-existing-vector-store-table: true
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
