@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.springAi;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.ai.chat.client.ChatClient;
@@ -64,7 +64,7 @@ public class EmbeddingController {
     }
 
     @GetMapping("/embedding")
-    public String recommend(@RequestParam String question) {
+    public String embedding(@RequestParam String question) {
         float[] questionVector = embeddingModel.embed(question);
         System.out.println("=== 질문 임베딩 벡터 ===");
         System.out.println("벡터 크기: " + questionVector.length);
@@ -92,6 +92,24 @@ public class EmbeddingController {
 
         return chatClient.prompt()
                 .system("다음 카페 정보 목록을 기반으로 정확하고 구체적으로 질문에 답변해줘. 아래 목록에 없는 카페는 절대 언급하지 마:\n" + context)
+                .user(question)
+                .call()
+                .content();
+    }
+
+    @GetMapping("/advisor")
+    public String advisor(@RequestParam String question) {
+        List<Document> docs = Objects.requireNonNull(vectorStore.similaritySearch(
+                SearchRequest.builder().query(question).topK(3).similarityThreshold(0.5).build()
+        )).stream().distinct().toList();
+
+        String context = docs.stream()
+                .map(doc -> "- 이름: " + doc.getMetadata().get("name") + ", 설명: " + doc.getText())
+                .collect(Collectors.joining("\n"));
+
+        return chatClient.prompt()
+                .system("다음 카페 정보 목록을 기반으로 정확하고 구체적으로 질문에 답변해줘. 아래 목록에 없는 카페는 절대 언급하지 마:\n" + context)
+                .advisors()
                 .user(question)
                 .call()
                 .content();
