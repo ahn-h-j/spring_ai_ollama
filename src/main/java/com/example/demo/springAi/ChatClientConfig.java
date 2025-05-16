@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.springAi;
 
 import io.micrometer.observation.ObservationRegistry;
 import org.springframework.ai.chat.client.ChatClient;
@@ -18,7 +18,8 @@ public class ChatClientConfig {
 
     @Bean
     public ChatClient ollamaChatClient(OllamaChatModel chatModel) {
-        return ChatClient.create(chatModel);
+        return ChatClient.builder(chatModel)
+                .defaultAdvisors(new LoggingCallAdvisor()).build();
     }
 
     @Bean

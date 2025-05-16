@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.springAi;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.web.bind.annotation.RestController;
